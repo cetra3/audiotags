@@ -136,19 +136,53 @@ impl Tag {
             config,
         }
     }
+
+    /// Creates a brand new tag without reading from an existing file path.
+    ///
+    /// Requires that [`Self::with_tag_type`] is called beforehand, otherwise it will return an error.
+    pub fn create_new(&self) -> crate::Result<Box<dyn AudioTag + Send + Sync>> {
+        let tag_type = match self.tag_type {
+            Some(tag_type) => tag_type,
+            None => return Err(Error::TagTypeRequired),
+        };
+
+        match tag_type {
+            TagType::Id3v2 => Ok(Box::new({
+                let mut t = Id3v2Tag::new();
+                t.set_config(self.config);
+                t
+            })),
+            TagType::Mp4 => Ok(Box::new({
+                let mut t = Mp4Tag::new();
+                t.set_config(self.config);
+                t
+            })),
+            TagType::Flac => Ok(Box::new({
+                let mut t = FlacTag::new();
+                t.set_config(self.config);
+                t
+            })),
+        }
+    }
+
     pub fn read_from_path(
         &self,
         path: impl AsRef<Path>,
     ) -> crate::Result<Box<dyn AudioTag + Send + Sync>> {
-        match self.tag_type.unwrap_or(TagType::try_from_ext(
-            path.as_ref()
-                .extension()
-                .ok_or(Error::UnknownFileExtension(String::new()))?
-                .to_string_lossy()
-                .to_string()
-                .to_lowercase()
-                .as_str(),
-        )?) {
+        let tag_type = match self.tag_type {
+            Some(tag_type) => tag_type,
+            None => TagType::try_from_ext(
+                path.as_ref()
+                    .extension()
+                    .ok_or(Error::UnknownFileExtension(String::new()))?
+                    .to_string_lossy()
+                    .to_string()
+                    .to_lowercase()
+                    .as_str(),
+            )?,
+        };
+
+        match tag_type {
             TagType::Id3v2 => Ok(Box::new({
                 let mut t = Id3v2Tag::read_from_path(path)?;
                 t.set_config(self.config);

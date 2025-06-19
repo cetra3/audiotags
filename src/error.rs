@@ -5,6 +5,9 @@ pub enum Error {
     #[error("Fail to guess the metadata format based on the file extension.")]
     UnknownFileExtension(String),
 
+    #[error("Tag Type is required when creating a new tag")]
+    TagTypeRequired,
+
     /// Represents a failure to read from input.
     #[error("Read error")]
     ReadError { source: std::io::Error },
