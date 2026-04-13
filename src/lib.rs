@@ -137,31 +137,24 @@ impl Tag {
         }
     }
 
-    /// Creates a brand new tag without reading from an existing file path.
-    ///
-    /// Requires that [`Self::with_tag_type`] is called beforehand, otherwise it will return an error.
-    pub fn create_new(&self) -> crate::Result<Box<dyn AudioTag + Send + Sync>> {
-        let tag_type = match self.tag_type {
-            Some(tag_type) => tag_type,
-            None => return Err(Error::TagTypeRequired),
-        };
-
+    /// Creates a brand new empty tag without reading from an existing file path.
+    pub fn empty(tag_type: TagType, config: Config) -> Box<dyn AudioTag + Send + Sync> {
         match tag_type {
-            TagType::Id3v2 => Ok(Box::new({
+            TagType::Id3v2 => Box::new({
                 let mut t = Id3v2Tag::new();
-                t.set_config(self.config);
+                t.set_config(config);
                 t
-            })),
-            TagType::Mp4 => Ok(Box::new({
+            }),
+            TagType::Mp4 => Box::new({
                 let mut t = Mp4Tag::new();
-                t.set_config(self.config);
+                t.set_config(config);
                 t
-            })),
-            TagType::Flac => Ok(Box::new({
+            }),
+            TagType::Flac => Box::new({
                 let mut t = FlacTag::new();
-                t.set_config(self.config);
+                t.set_config(config);
                 t
-            })),
+            }),
         }
     }
 
