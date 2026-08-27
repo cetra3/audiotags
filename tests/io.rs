@@ -101,4 +101,3 @@ fn test_read_from_path_honours_tag_type() {
 
     assert_eq!(tag.date().unwrap().year, 2013);
 }
-
