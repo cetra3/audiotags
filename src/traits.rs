@@ -89,7 +89,7 @@ pub trait AudioTagEdit: AudioTagConfig {
     }
 
     fn album_cover(&self) -> Option<Picture<'_>>;
-    fn set_album_cover(&mut self, cover: Picture);
+    fn set_album_cover(&mut self, cover: Picture<'_>);
     fn remove_album_cover(&mut self);
 
     fn composer(&self) -> Option<&str>;
